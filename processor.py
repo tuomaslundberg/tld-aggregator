@@ -8,7 +8,7 @@ input_file = sys.argv[1]
 output_file = sys.argv[2]
 # This regex attempts to match the TLD contained by the URL. Please note that
 # the regex is somewhat ad-hoc, so don't rely on it in critical implementations
-TLD_regex = re.compile(r'\.(\w+)(?::\d+)?(?:\/|$)')
+TLD_regex = re.compile(r'\.([a-zA-Z0-9-]+)(?:\.(?=[:\/?#]|$)|(?::(?:\d+)?|[\/?#]|$))')
 # The TLD distribution is saved here
 distr = {}
 # Error-raising JSON lines along with their error messages are written here
