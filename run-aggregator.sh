@@ -24,7 +24,7 @@ module use /appl/local/csc/modulefiles
 module load pytorch/2.4
 
 INPUT_DIR="/scratch/project_462000353/HPLT-REGISTERS/splits/deduplicated/fin_Latn/1"
-OUTPUT_DIR="/scratch/project_462000353/tlundber/tld-aggregator-results"
+OUTPUT_DIR="/scratch/project_462000353/tlundber/tld-aggregator/tld-aggregator-results"
 
 find "$INPUT_DIR" -type f -name "*.jsonl" | while read -r file; do
     subdir=$(dirname "$file" | sed "s|$INPUT_DIR|$OUTPUT_DIR|")
