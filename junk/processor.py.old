@@ -1,0 +1,83 @@
+import sys
+import os
+import json
+import re
+import csv
+import random
+
+#if len(sys.argv) == 2:
+#    input_file = '/scratch/project_462000353/HPLT-REGISTERS/splits/deduplicated/fin_Latn/1/06.jsonl'
+#else:
+input_file = sys.argv[1]
+output_dir = sys.argv[2]
+
+output_file = os.path.join(output_dir, *(input_file.split(os.sep)[-3:]))[:-1]
+#output_subdir = os.path.dirname(output_file)
+
+#os.makedirs(output_subdir, exist_ok=True)
+
+TLD_regex = re.compile(r'\.(\w+)(?::\d+)?(?:\/|$)')
+tld_codes_path = 'cc-tld.csv'
+max_samples_per_file = 10
+
+def load_country_codes(file):
+    # Save country-code TLD's into an array (country codes in the CSV are
+    # accurate as of 3 Jan 2025)
+    with open(file, 'r') as csvfile:
+        codes = [code[0] for code in csv.reader(csvfile)]
+        return codes
+
+def single_file_distribution(path, output_file, sample_size):
+    print(path, output_file, sample_size)
+    distr = {}
+    sample_lines = []
+    
+    with open(path, 'r')  as file:
+        for i, line in enumerate(file):
+            if i >= 100:
+                break
+            
+            if len(sample_lines) < sample_size:
+                sample_lines.append(line)
+            else:
+                replace_index = random.randint(0, i)
+                if replace_index < sample_size:
+                    sample_lines[replace_index] = line
+
+    for line in sample_lines:
+        json_object = json.loads(line)
+        try:
+            match = TLD_regex.search(json_object['u']).group(1)
+        except AttributeError:
+            print(json_object['u'])
+        if match not in distr:
+            distr[match] = 1
+        else:
+            distr[match] += 1
+
+        # Optional: if you only want to find the URL's with a cc-TLD, you
+        # can comment the above if-block and uncomment the following:
+        #codes = load_country_codes(tld_codes_path)
+        #if match in codes:
+        #    if match not in distr:
+        #        distr[match] = 1
+        #    else:
+        #        distr[match] += 1
+        #print(json_object['u'])
+
+    if output_file:
+        with open(output_file, 'w') as file:
+            json.dump(distr, file)
+    
+    return distr
+
+#def single_file_distribution(path, output_file, sample_size):
+#    print("Path: ", path, "Output file: ", output_file, "\n")
+
+def TLD_distribution(files, sample_size=max_samples_per_file):
+    results = {}
+    for file in files:
+        results[file] = single_file_distribution(file, sample_size)
+    return results
+
+single_file_distribution(input_file, output_file, max_samples_per_file)
