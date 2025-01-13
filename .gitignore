@@ -173,3 +173,4 @@ cython_debug/
 # Custom
 slurm-logs*/
 **/*.json.errors
+tld-aggregator-results-backup/
